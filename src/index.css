@@ -1,1 +1,183 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+body {
+  font-family: "Inter", sans-serif;
+
+  overscroll-behavior: none;
+  min-height: 100vh;
+}
+
+/* Background Utilities */
+.gradient-bg {
+  background: linear-gradient(135deg, #ea9b66 0%, #a27c4b 100%);
+}
+
+/* Card Components */
+.card-hover {
+  transition: all 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.leave-card {
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+.leave-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.holiday-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Status Components */
+.status-badge {
+  transition: all 0.2s ease;
+}
+
+.status-rejected {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #dc2626;
+}
+
+/* Navigation Components */
+.floating-action {
+  box-shadow: 0 8px 25px rgba(245, 101, 101, 0.3);
+  transition: all 0.3s ease;
+}
+.floating-action:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 35px rgba(245, 101, 101, 0.4);
+}
+
+.nav-item {
+  transition: all 0.2s ease;
+}
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+}
+.nav-item:hover i {
+  transform: scale(1.1);
+}
+
+/* Enhanced sticky navbar untuk mobile */
+.bottom-nav {
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  /* Backdrop blur untuk efek glassmorphism */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Prevent navbar from moving on mobile browsers */
+@supports (-webkit-touch-callout: none) {
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 384px; /* max-w-sm */
+  }
+}
+
+/* Layout Components */
+/* Ensure container takes full height */
+.main-container {
+  min-height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollable content area */
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  /* padding-bottom: 120px; Space for navbar */
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Form Components */
+.form-input {
+  transition: all 0.3s ease;
+}
+.form-input:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 101, 101, 0.15);
+}
+
+.select-wrapper {
+  position: relative;
+}
+.select-wrapper::after {
+  content: "\f078";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fb923c;
+  pointer-events: none;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Button Components */
+.btn-primary {
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(251, 146, 60, 0.4);
+}
+
+.btn-secondary {
+  transition: all 0.3s ease;
+}
+.btn-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation Components */
+.pulse-animation {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
