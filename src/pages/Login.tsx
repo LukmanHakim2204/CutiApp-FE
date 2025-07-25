@@ -33,78 +33,55 @@ export default function Login() {
     setError("");
 
     try {
-      console.log("🔑 Attempting login...");
-
       const response = await axios.post("http://localhost:8000/api/login", {
         email: formData.email,
         password: formData.password,
       });
 
       const data = response.data;
-      console.log("📥 Login response:", data);
 
       // Login successful - Handle the current backend response format
       if (data.success && data.user) {
-        console.log("✅ Login successful!");
-
         // Token is at top level: data.token (not data.user.token)
         const token = data.token; // ✅ Fixed: Get token from top level
         const userData = data.user; // User data is separate
-
-        console.log("🔑 Token:", token);
-        console.log("👤 User data:", userData);
 
         if (token) {
           // Store with consistent key names (matching api.ts)
           localStorage.setItem("auth_token", token);
           localStorage.setItem("user_data", JSON.stringify(userData));
 
-          console.log("💾 Data saved to localStorage");
-
-          // Verify storage
-          const savedToken = localStorage.getItem("auth_token");
-          const savedUser = localStorage.getItem("user_data");
-
-          console.log("✅ Verification - Token saved:", !!savedToken);
-          console.log("✅ Verification - User saved:", !!savedUser);
-
           // Clear form
           setFormData({ email: "", password: "" });
 
-          // Redirect to home page
-          console.log("🔄 Redirecting to /home");
           navigate("/home");
         } else {
           setError("Token tidak ditemukan dalam response. Silakan coba lagi.");
-          console.error("❌ No token in response");
         }
       } else {
         setError("Login gagal. Response tidak valid.");
-        console.error("❌ Invalid response structure:", data);
       }
     } catch (error) {
-      console.error("❌ Login error:", error);
-
       if (axios.isAxiosError(error)) {
         if (error.response) {
           // Server responded with error status
-          console.error("Server error:", error.response.data);
+
           const errorMessage =
             error.response.data?.message ||
             "Login gagal. Periksa email dan password Anda.";
           setError(errorMessage);
         } else if (error.request) {
           // Network error
-          console.error("Network error:", error.request);
+
           setError("Terjadi kesalahan koneksi. Silakan coba lagi.");
         } else {
           // Other error
-          console.error("Other error:", error.message);
+
           setError("Terjadi kesalahan. Silakan coba lagi.");
         }
       } else {
         // Non-axios error
-        console.error("Non-axios error:", error);
+
         setError("Terjadi kesalahan yang tidak diketahui.");
       }
     } finally {
