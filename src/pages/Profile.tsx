@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone } from "lucide-react";
+import { LogOutIcon, Mail, MapPin, Phone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
@@ -17,27 +17,60 @@ export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const baseUrl = "http://localhost:8000/storage";
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
+
+        // First get local user data
         const localUser = getCurrentUser();
+
         if (localUser) {
           setUser(localUser);
         }
 
+        // Then fetch from API if authenticated
         if (isAuthenticated()) {
           try {
-            const apiUser = await apiService.getUserProfile();
-            setUser(apiUser);
-            localStorage.setItem("user_data", JSON.stringify(apiUser));
+            const apiResponse = await apiService.getUserProfile();
+
+            // Handle different response formats
+            let actualUser: User | null = null;
+
+            if (apiResponse && typeof apiResponse === "object") {
+              // Check if response has 'user' property (wrapped format)
+              if ("user" in apiResponse && apiResponse.user) {
+                actualUser = apiResponse.user as User;
+              }
+              // Check if response is direct user object
+              else if (
+                "id" in apiResponse ||
+                "name" in apiResponse ||
+                "email" in apiResponse
+              ) {
+                actualUser = apiResponse as User;
+              }
+              // Fallback to local data
+              else {
+                actualUser = localUser;
+              }
+            } else {
+              actualUser = localUser;
+            }
+
+            if (actualUser) {
+              setUser(actualUser);
+              // Update localStorage with fresh data
+              localStorage.setItem("user_data", JSON.stringify(actualUser));
+            }
           } catch {
-            // Fallback ke local data jika API gagal
+            // Keep using local data if API fails
           }
         }
       } catch {
-        // Error global diabaikan
+        // Handle global errors silently
       } finally {
         setLoading(false);
       }
@@ -148,6 +181,7 @@ export default function Profile() {
     <AuthGuard>
       <div className="max-w-sm mx-auto bg-white rounded-3xl overflow-hidden shadow-2xl relative main-container mobile-container">
         <div className="content-area scrollbar-hide">
+          {/* Header */}
           <div className="flex items-center justify-between p-6 pb-4">
             <button
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -159,25 +193,47 @@ export default function Profile() {
             <div className="w-10" />
           </div>
 
+          {/* Profile Photo */}
           <div className="flex justify-center px-6">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                {user?.employee?.profile_picture ? (
+                  <img
+                    src={`${baseUrl}/${user.employee.profile_picture}`}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                ) : null}
+                {/* Default Avatar - Always rendered but hidden when image loads */}
+                <div
+                  className={`absolute inset-0 flex items-center justify-center text-white ${
+                    user?.employee?.profile_picture
+                      ? "opacity-0"
+                      : "opacity-100"
+                  }`}
+                >
+                  <i className="fas fa-user text-3xl" />
+                </div>
               </div>
             </div>
           </div>
 
+          {/* Profile Info */}
           <div className="text-center px-6 mt-4">
             <h2 className="text-xl font-bold text-gray-800">
-              {user?.employee?.name || user?.name || "Loading..."}
+              {user?.employee?.name || user?.name || "No Name"}
             </h2>
+            <p className="text-gray-500 text-sm mt-1">
+              {user?.employee?.position?.name || "Employee"}
+            </p>
           </div>
 
+          {/* Form Fields */}
           <div className="px-6 mt-8 space-y-6">
+            {/* Email */}
             <div>
               <label className="block text-gray-500 text-sm font-medium mb-2">
                 Email :
@@ -195,6 +251,7 @@ export default function Profile() {
               </div>
             </div>
 
+            {/* Phone */}
             <div>
               <label className="block text-gray-500 text-sm font-medium mb-2">
                 Phone :
@@ -212,6 +269,7 @@ export default function Profile() {
               </div>
             </div>
 
+            {/* Address */}
             <div>
               <label className="block text-gray-500 text-sm font-medium mb-2">
                 Alamat :
@@ -220,7 +278,7 @@ export default function Profile() {
                 <textarea
                   rows={3}
                   value={user?.employee?.permanent_address || "N/A"}
-                  className="w-full px-5 py-3 pr-10 border-2 border-orange-300 shadow-md rounded-xl bg-gray-100 text-gray-600 cursor-not-allowed resize-none"
+                  className="w-full px-4 py-3 pr-12 border-2 border-orange-300 shadow-md rounded-xl bg-gray-100 text-gray-600 cursor-not-allowed resize-none"
                   readOnly
                   disabled
                   tabIndex={-1}
@@ -230,6 +288,7 @@ export default function Profile() {
             </div>
           </div>
 
+          {/* Logout Button */}
           <div className="px-6 mt-8 pb-32">
             <button
               onClick={handleLogout}
@@ -240,11 +299,7 @@ export default function Profile() {
                   : "bg-orange-500 hover:bg-orange-600 text-white cursor-pointer"
               }`}
             >
-              <i
-                className={`fas ${
-                  isLoggingOut ? "fa-spinner fa-spin" : "fa-sign-out-alt"
-                }`}
-              />
+              <LogOutIcon className="w-5 h-5" />
               {isLoggingOut ? "LOGGING OUT..." : "LOGOUT"}
             </button>
           </div>
