@@ -35,7 +35,6 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   }, [checkAuthentication]);
 
   const redirectToLogin = () => {
-    console.log("🔄 Redirecting to login...");
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user_data");
     window.location.href = "/";

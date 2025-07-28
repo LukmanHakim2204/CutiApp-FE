@@ -21,7 +21,8 @@ export default function Login() {
     if (error) setError("");
   };
 
-  const handleLogin = async (e: React.FormEvent<HTMLButtonElement>) => {
+  // ✅ Fixed: Changed to handle form submission instead of button click
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
@@ -65,23 +66,19 @@ export default function Login() {
       if (axios.isAxiosError(error)) {
         if (error.response) {
           // Server responded with error status
-
           const errorMessage =
             error.response.data?.message ||
             "Login gagal. Periksa email dan password Anda.";
           setError(errorMessage);
         } else if (error.request) {
           // Network error
-
           setError("Terjadi kesalahan koneksi. Silakan coba lagi.");
         } else {
           // Other error
-
           setError("Terjadi kesalahan. Silakan coba lagi.");
         }
       } else {
         // Non-axios error
-
         setError("Terjadi kesalahan yang tidak diketahui.");
       }
     } finally {
@@ -114,12 +111,12 @@ export default function Login() {
 
           {/* Welcome text */}
           <div className="justify-center">
-            <h1 className="top-[286px] left-1/2 transform -translate-x-1/2 absolute justify-start text-black text-lg font-bold font-['Inter'] whitespace-nowrap">
+            <h1 className="top-[286px] left-1/2 transform -translate-x-1/2 absolute justify-start text-black text-xl font-bold font-['Inter'] whitespace-nowrap">
               Welcome To Leave Application
             </h1>
 
             {/* Company name */}
-            <h1 className="top-[328px] left-1/2 transform -translate-x-1/2 absolute justify-start text-orange-500 text-xl font-bold font-['Inter']">
+            <h1 className="top-[320px] left-1/2 transform -translate-x-1/2 absolute justify-start text-orange-500 text-xl font-bold font-['Inter']">
               PT Bara Reca Niroga
             </h1>
 
@@ -130,8 +127,8 @@ export default function Login() {
               </div>
             )}
 
-            {/* Login Form */}
-            <div className="relative z-10">
+            {/* ✅ Fixed: Wrapped inputs in form with onSubmit */}
+            <form onSubmit={handleLogin} className="relative z-10">
               {/* email/Email Input */}
               <div
                 className={`w-64 h-11 top-[384px] left-1/2 transform -translate-x-32 absolute bg-zinc-300 rounded-[30px] overflow-hidden transition-all duration-200 ${
@@ -146,8 +143,8 @@ export default function Login() {
                   onChange={handleInputChange}
                   onFocus={() => handleFocus("email")}
                   onBlur={handleBlur}
-                  placeholder="Masukkan email / Email .."
-                  className="w-full h-full px-4 bg-transparent text-neutral-600 text-xs font-light font-['Inter'] outline-none placeholder-neutral-600"
+                  placeholder="Masukkan Username / Email .."
+                  className="w-full h-full px-4 bg-transparent text-neutral-600 text-sm font-light font-['Inter'] outline-none placeholder-neutral-600"
                   disabled={isLoading}
                 />
               </div>
@@ -167,14 +164,14 @@ export default function Login() {
                   onFocus={() => handleFocus("password")}
                   onBlur={handleBlur}
                   placeholder="Masukkan Password..."
-                  className="w-full h-full px-4 bg-transparent text-neutral-600 text-xs font-light font-['Inter'] outline-none placeholder-neutral-600"
+                  className="w-full h-full px-4 bg-transparent text-neutral-600 text-sm font-light font-['Inter'] outline-none placeholder-neutral-600"
                   disabled={isLoading}
                 />
               </div>
 
-              {/* Login Button */}
+              {/* ✅ Fixed: Added type="submit" to button */}
               <button
-                onClick={handleLogin}
+                type="submit"
                 disabled={isLoading}
                 className={`cursor-pointer w-64 h-9 top-[550px] left-1/2 transform -translate-x-32 absolute rounded-[30px] transition-all duration-200 shadow-lg hover:shadow-xl ${
                   isLoading
@@ -186,7 +183,7 @@ export default function Login() {
                   {isLoading ? "LOADING..." : "LOGIN"}
                 </span>
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>

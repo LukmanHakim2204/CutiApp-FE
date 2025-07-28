@@ -5,6 +5,7 @@ import Profile from "./pages/Profile";
 import Holiday from "./pages/Holiday";
 import CreateLeaveApp from "./pages/CreateLeaveApp";
 import History from "./pages/History";
+import SubmitLeaveApp from "./pages/SubmitLeaveApp";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/history" element={<History />} />
         <Route path="/holiday" element={<Holiday />} />
         <Route path="/create-leave-app" element={<CreateLeaveApp />} />
+        <Route path="/submit-leave-app" element={<SubmitLeaveApp />} />
       </Routes>
     </BrowserRouter>
   );

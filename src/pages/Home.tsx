@@ -15,14 +15,17 @@ import {
 
 import Navbar from "../component/Navbar";
 
-import {
-  apiService,
-  isAuthenticated,
-  getCurrentUser,
- 
-} from "../services/api";
+import { apiService, isAuthenticated, getCurrentUser } from "../services/api";
 import AuthGuard from "../component/AuthGuard";
-import type { ColorClasses, DashboardData, LeaveApplication, LeaveType, StatsCardProps, StatusColor, User } from "../types/type";
+import type {
+  ColorClasses,
+  DashboardData,
+  LeaveApplication,
+  LeaveType,
+  StatsCardProps,
+  StatusColor,
+  User,
+} from "../types/type";
 
 // Type definitions for component props
 interface LeaveApplicationItemProps {
@@ -199,11 +202,11 @@ const LeaveApplicationItem: React.FC<LeaveApplicationItemProps> = ({
           </p>
           <p className="text-xs text-gray-500">Balance</p>
         </div>
-        <div className="text-right">
+        <div className="text-center">
           <div className="bg-gray-100 p-2 rounded-lg inline-block">
             <ApproverIcon className="w-4 h-4 text-gray-600" />
           </div>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-center text-gray-500 mt-1">
             {application.leave_approver?.name || "Pending"}
           </p>
         </div>
@@ -340,7 +343,6 @@ export default function Home(): React.ReactElement {
       const response = await apiService.getLeaveApplications(status);
       setFilteredApplications(response.data || []);
     } catch (error) {
-      console.error("Applications error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       setApplicationsError(errorMessage);
