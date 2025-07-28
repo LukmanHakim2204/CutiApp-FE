@@ -1,28 +1,32 @@
 // src/services/api.ts - Updated with Axios
 import axios, { type AxiosResponse, AxiosError } from 'axios';
-import type { ApiErrorResponse, CreateLeaveApplicationRequest, DashboardData, LeaveApplication, LeaveType, UpdateLeaveApplicationRequest, User } from '../types/type';
-
+import type {
+  ApiErrorResponse,
+  CreateLeaveApplicationRequest,
+  DashboardData,
+  LeaveApplication,
+  LeaveType,
+  UpdateLeaveApplicationRequest,
+  User
+} from '../types/type';
 
 // Konfigurasi API
 const getApiBaseUrl = () => {
-  // Untuk Vite
   if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  
-  // Untuk Create React App (jika tersedia)
+
   if (typeof process !== 'undefined' && process.env?.REACT_APP_API_URL) {
     return process.env.REACT_APP_API_URL;
   }
-  
-  // Fallback
+
   return "http://localhost:8000/api";
 };
 
 // Create axios instance
 const apiClient = axios.create({
   baseURL: getApiBaseUrl(),
-  timeout: 30000, // 30 seconds timeout
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -33,11 +37,9 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("auth_token");
-    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
     return config;
   },
   (error) => {
@@ -51,23 +53,21 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
-    // Handle 401 Unauthorized
     if (error.response?.status === 401) {
       localStorage.removeItem("auth_token");
       localStorage.removeItem("user_data");
       window.location.href = "/";
     }
-    
-    // Extract error message
+
     let errorMessage = "Network Error";
-    
+
     if (error.response?.data) {
       const errorData = error.response.data as ApiErrorResponse;
       errorMessage = errorData.message || errorData.error || `HTTP ${error.response.status}`;
     } else if (error.message) {
       errorMessage = error.message;
     }
-    
+
     return Promise.reject(new Error(errorMessage));
   }
 );
@@ -76,7 +76,6 @@ apiClient.interceptors.response.use(
 export const isAuthenticated = (): boolean => {
   const token = localStorage.getItem("auth_token");
   const userData = localStorage.getItem("user_data");
-  
   return !!(token && userData);
 };
 
@@ -90,29 +89,13 @@ export const getCurrentUser = (): User | null => {
   }
 };
 
-// Debug function untuk check localStorage (if needed for debugging)
-export const debugAuth = () => {
-  // Only enable in development
-  if (process.env.NODE_ENV === 'development') {
-    const token = localStorage.getItem("auth_token");
-    const userData = localStorage.getItem("user_data");
-    console.log("🔍 Auth Debug:", {
-      hasToken: !!token,
-      tokenPreview: token ? `${token.substring(0, 10)}...` : null,
-      hasUserData: !!userData,
-      userData: userData ? JSON.parse(userData) : null
-    });
-  }
-};
 
 // API Service
 export const apiService = {
-  // Test method untuk check authentication
   async checkAuth(): Promise<boolean> {
     if (!isAuthenticated()) {
       return false;
     }
-    
     try {
       const response = await apiClient.get('/user');
       return response.status === 200;
@@ -122,36 +105,30 @@ export const apiService = {
   },
 
   async getDashboardData(): Promise<DashboardData> {
-    // Check auth first
     if (!isAuthenticated()) {
       throw new Error("User not authenticated");
     }
-    
     const response = await apiClient.get<DashboardData>('/statistics');
     return response.data;
   },
 
   async getLeaveApplications(status = ""): Promise<{ data: LeaveApplication[] }> {
-    // Check auth first
     if (!isAuthenticated()) {
       throw new Error("User not authenticated");
     }
-    
+
     const params: Record<string, string> = {};
     if (status && status !== "all") {
       params.status = status;
     }
-    
-    const response = await apiClient.get<{ data: LeaveApplication[] }>('/leave-applications/status', {
-      params
-    });
-    
-    // Handle case where response doesn't have data property
+
+    const response = await apiClient.get<{ data: LeaveApplication[] }>('/leave-applications/status', { params });
+
     if (!response.data.data) {
       const applications = Array.isArray(response.data) ? response.data : [];
       return { data: applications as LeaveApplication[] };
     }
-    
+
     return response.data;
   },
 
@@ -159,10 +136,9 @@ export const apiService = {
     if (!isAuthenticated()) {
       throw new Error("User not authenticated");
     }
-    
+
     const response = await apiClient.post<LeaveApplication | { data: LeaveApplication }>('/leave-applications', data);
-    
-    // Handle both response formats
+
     if ('data' in response.data) {
       return response.data.data;
     }
@@ -173,49 +149,35 @@ export const apiService = {
     if (!isAuthenticated()) {
       throw new Error("User not authenticated");
     }
-    
+
     const response = await apiClient.put<LeaveApplication | { data: LeaveApplication }>(`/leave-applications/${id}`, data);
-    
-    // Handle both response formats
+
     if ('data' in response.data) {
       return response.data.data;
     }
     return response.data;
   },
 
-  // Delete leave application
-  async deleteLeaveApplication(id: number): Promise<void> {
-    if (!isAuthenticated()) {
-      throw new Error("User not authenticated");
-    }
-    
-    await apiClient.delete(`/leave-applications/${id}`);
-  },
-
-  // Get leave types
   async getLeaveTypes(): Promise<LeaveType[]> {
     if (!isAuthenticated()) {
       throw new Error("User not authenticated");
     }
-    
-    const response = await apiClient.get<LeaveType[] | { data: LeaveType[] }>('/leave-types');
-    
-    // Handle both response formats
+
+    const response = await apiClient.get<LeaveType[] | { data: LeaveType[] }>('/leavetypes');
+
     if (Array.isArray(response.data)) {
       return response.data;
     }
     return response.data.data;
   },
 
-  // Get user profile
   async getUserProfile(): Promise<User> {
     if (!isAuthenticated()) {
       throw new Error("User not authenticated");
     }
-    
+
     const response = await apiClient.get<User | { data: User }>('/user');
-    
-    // Handle both response formats
+
     if ('data' in response.data) {
       return response.data.data;
     }
@@ -223,5 +185,4 @@ export const apiService = {
   },
 };
 
-// Export axios instance jika diperlukan untuk custom requests
 export { apiClient };

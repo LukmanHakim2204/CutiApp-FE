@@ -1,4 +1,5 @@
 
+
 export interface StatusColor {
   bg: string;
   text: string;
@@ -9,9 +10,6 @@ export interface ColorClasses {
   bg: string;
   border: string;
 }
-
-
-
 
 export interface StatsCardProps {
   title: string;
@@ -24,15 +22,52 @@ export interface StatsCardProps {
 export interface User {
   id: number;
   name: string;
-  email?: string;
+  email: string;
+  role?: Array<{ name: string }>;
   employee?: {
     id: number;
+    slug: string;
+    first_name: string;
+    last_name: string;
     name: string;
-    email: string;
+    gender: string;
+    national_id: string;
     employee_phone: string;
+    email: string;
+    profile_picture?: string;
     permanent_address?: string;
+    marital_status?: string;
+    division?: {
+      id: number;
+      name: string;
+    };
+    position?: {
+      id: number;
+      name: string;
+    };
+    leaveApprover?: {
+      id: number;
+      name: string;
+    };
   };
 }
+
+
+
+export interface FormData {
+  leave_type_id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  employee_id: number | null;
+  division_id: number | null;
+  leave_approver_id: number | null;
+  employee_name: string;
+  division_name: string;
+  leave_approver_name: string;
+}
+
+
 
 export interface LeaveType {
   id: number;
@@ -54,18 +89,32 @@ export interface LeaveApplication {
   status: "pending" | "approved" | "rejected";
   reason?: string;
   leave_type: LeaveType;
+  employee?: Employee;
+  division?: Division;
   leave_approver?: LeaveApprover;
   created_at?: string;
   updated_at?: string;
 }
+interface Employee {
+  name: string;
+}
 
+interface Division {
+  name: string;
+}
 export interface LeaveBalance {
   leave_type: string;
   allocated_days: number;
   used_days: number;
   remaining_days: number;
 }
-
+export interface LeaveBalance {
+  total: number;
+  used: number;
+  remaining: number;
+  color: string;
+  name: string;
+}
 export interface Statistics {
   total: number;
   pending: number;
