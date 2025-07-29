@@ -153,3 +153,24 @@ export interface ApiErrorResponse {
   errors?: Record<string, string[]>;
 }
 
+export interface Holiday {
+  id: string;
+  description: string;
+  date: string;
+  status: "religious" | "national" | "seasonal";
+}
+
+export interface HolidayGroup {
+  holiday_name: string;
+  start_date: string;
+  end_date: string;
+  description: string;
+  holidays: Holiday[];
+}
+
+export interface ExtendedHoliday extends Holiday {
+  groupName: string;
+  groupStartDate: string;
+  groupEndDate: string;
+  groupDescription: string;
+}
