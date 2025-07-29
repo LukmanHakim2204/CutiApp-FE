@@ -1,5 +1,5 @@
-import { LogOutIcon, Mail, MapPin, Phone } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ArrowLeft, LogOutIcon, Mail, MapPin, Phone } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Navbar from "../component/Navbar";
@@ -183,12 +183,12 @@ export default function Profile() {
         <div className="content-area scrollbar-hide">
           {/* Header */}
           <div className="flex items-center justify-between p-6 pb-4">
-            <button
+            <Link
+              to="/home"
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              onClick={() => navigate(-1)}
             >
-              <i className="fas fa-arrow-left text-gray-600 text-lg" />
-            </button>
+              <ArrowLeft className="text-gray-600 w-6 h-6" />
+            </Link>
             <h1 className="text-xl font-semibold text-gray-800">Profil</h1>
             <div className="w-10" />
           </div>
