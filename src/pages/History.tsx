@@ -37,7 +37,7 @@ export default function History() {
         }
 
         // Make sure to use the full URL if your frontend and backend are on different ports
-        const baseURL = "http://localhost:8000";
+        const baseURL = "https://dashbar.barareca.co.id";
         const response = await axios.get<ApiResponse>(
           `${baseURL}/api/leave-applications`,
           {
@@ -90,7 +90,7 @@ export default function History() {
           } else if (err.request) {
             // Network error
             errorMessage =
-              "Network error. Please check if the server is running on http://localhost:8000";
+              "Network error. Please check if the server is running on https://dashbar.barareca.co.id";
           }
         } else if (err instanceof Error) {
           errorMessage = err.message;

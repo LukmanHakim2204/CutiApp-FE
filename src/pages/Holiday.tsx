@@ -18,7 +18,7 @@ export default function Holiday() {
   const fetchHolidays = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://dashbar.bararedca.co.id/api/holidaylist", {
+      const response = await fetch("https://dashbar.barareca.co.id/api/holidaylist", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
