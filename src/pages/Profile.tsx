@@ -17,7 +17,7 @@ export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const baseUrl = "http://localhost:8000/storage";
+  const baseUrl = "https://dashbar.barareca.co.id/storage";
 
   useEffect(() => {
     const fetchUserData = async () => {

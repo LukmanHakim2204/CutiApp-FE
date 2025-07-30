@@ -16,8 +16,8 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
 // API Configuration
-const API_BASE_URL = "http://localhost:8000/api";
-const LEAVE_TYPE_API_KEY = "Lukman321";
+const API_BASE_URL = "https://dashbar.barareca.co.id/api";
+const LEAVE_TYPE_API_KEY = "YjHSSITOc1NDh945b7GlMzCfKbJPGB2d";
 
 interface LeaveBalance {
   total: number;

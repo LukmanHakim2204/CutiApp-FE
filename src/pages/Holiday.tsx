@@ -18,11 +18,11 @@ export default function Holiday() {
   const fetchHolidays = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:8000/api/holidaylist", {
+      const response = await fetch("https://dashbar.barareca.co.id/api/holidaylist", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": "Lukman321",
+          "x-api-key": "YjHSSITOc1NDh945b7GlMzCfKbJPGB2d",
         },
       });
 
