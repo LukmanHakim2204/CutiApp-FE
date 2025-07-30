@@ -16,8 +16,8 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
 // API Configuration
-const API_BASE_URL = "http://localhost:8000/api";
-const LEAVE_TYPE_API_KEY = "Lukman321";
+const API_BASE_URL = "https://dashbar.bararedca.co.id/api";
+const LEAVE_TYPE_API_KEY = "YjHSSITOc1NDh945b7GlMzCfKbJPGB2d";
 
 interface LeaveBalance {
   total: number;
@@ -408,7 +408,7 @@ export default function CreateLeaveApp() {
   const validateForm = (): string[] => {
     const errors: string[] = [];
     const leaveDays = calculateLeaveDays();
-    const leaveTypeId = parseInt(formData.leave_type_id);
+    // const leaveTypeId = parseInt(formData.leave_type_id);
     const balance = getCurrentBalance();
 
     if (!formData.leave_type_id) errors.push("Tipe cuti harus dipilih");

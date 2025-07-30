@@ -20,7 +20,7 @@ const getApiBaseUrl = () => {
     return process.env.REACT_APP_API_URL;
   }
 
-  return "http://localhost:8000/api";
+  return "https://dashbar.bararedca.co.id/api";
 };
 
 // Create axios instance
