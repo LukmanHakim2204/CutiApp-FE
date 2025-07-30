@@ -408,7 +408,7 @@ export default function CreateLeaveApp() {
   const validateForm = (): string[] => {
     const errors: string[] = [];
     const leaveDays = calculateLeaveDays();
-    const leaveTypeId = parseInt(formData.leave_type_id);
+
     const balance = getCurrentBalance();
 
     if (!formData.leave_type_id) errors.push("Tipe cuti harus dipilih");
@@ -474,7 +474,8 @@ export default function CreateLeaveApp() {
     setValidationErrors({});
 
     try {
-      // Prepare data for API (matching Laravel controller expectations)
+      // ========== PERBAIKAN: HANYA KIRIM ID, TIDAK KIRIM NAMA ==========
+      // Prepare data for API - HANYA ID yang dikirim ke backend
       const submitData = {
         employee_id: formData.employee_id,
         leave_type_id: parseInt(formData.leave_type_id),
@@ -484,7 +485,10 @@ export default function CreateLeaveApp() {
         division_id: formData.division_id,
         leave_approver_id: formData.leave_approver_id,
         status: "pending",
+        // TIDAK mengirim: employee_name, division_name, leave_approver_name
       };
+
+      console.log("Final submit data (IDs only):", submitData);
 
       await httpClient.post("/leave-applications", submitData);
 
@@ -825,7 +829,7 @@ export default function CreateLeaveApp() {
                 {/* Employee Field */}
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Employee
+                    Employee (ID: {formData.employee_id})
                   </label>
                   <div className="relative">
                     <input
@@ -849,7 +853,7 @@ export default function CreateLeaveApp() {
                 {/* Division Field */}
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Divisi
+                    Divisi (ID: {formData.division_id})
                   </label>
                   <div className="relative">
                     <input
@@ -873,7 +877,7 @@ export default function CreateLeaveApp() {
                 {/* Leave Approver Field */}
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Leave Approver
+                    Leave Approver (ID: {formData.leave_approver_id})
                   </label>
                   <div className="relative">
                     <input
