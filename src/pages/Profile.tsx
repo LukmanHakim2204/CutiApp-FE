@@ -192,11 +192,11 @@ export default function Profile() {
             <h1 className="text-xl font-semibold text-gray-800">Profil</h1>
             <div className="w-10" />
           </div>
-
           {/* Profile Photo */}
           <div className="flex justify-center px-6">
             <div className="relative">
               <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                {/* Profile Picture */}
                 {user?.employee?.profile_picture ? (
                   <img
                     src={`${baseUrl}/${user.employee.profile_picture}`}
@@ -207,15 +207,39 @@ export default function Profile() {
                     }}
                   />
                 ) : null}
-                {/* Default Avatar - Always rendered but hidden when image loads */}
+
+                {/* Default Avatar Container */}
                 <div
-                  className={`absolute inset-0 flex items-center justify-center text-white ${
+                  className={`absolute inset-0 transition-opacity duration-200 ${
                     user?.employee?.profile_picture
                       ? "opacity-0"
                       : "opacity-100"
                   }`}
                 >
-                  <i className="fas fa-user text-3xl" />
+                  {/* Gender-based Default Avatar */}
+                  {user?.employee?.gender ? (
+                    <img
+                      src={
+                        user.employee.gender.toLowerCase() === "male"
+                          ? `/assets/images/default-male-avatar.png`
+                          : `/assets/images/default-female-avatar.jpg`
+                      }
+                      alt={`Default ${user.employee.gender} Avatar`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                  ) : null}
+
+                  {/* Fallback Icon */}
+                  <div
+                    className={`absolute inset-0 flex items-center justify-center text-white transition-opacity ${
+                      !user?.employee?.gender ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    <i className="fas fa-user text-3xl" />
+                  </div>
                 </div>
               </div>
             </div>
