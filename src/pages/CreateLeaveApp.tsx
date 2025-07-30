@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
 // API Configuration
-const API_BASE_URL = "https://dashbar.bararedca.co.id/api";
+const API_BASE_URL = "https://dashbar.barareca.co.id/api";
 const LEAVE_TYPE_API_KEY = "YjHSSITOc1NDh945b7GlMzCfKbJPGB2d";
 
 interface LeaveBalance {
