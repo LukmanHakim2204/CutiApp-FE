@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import Navbar from "../component/Navbar";
 import type { FormData, LeaveType, User } from "../types/type";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // API Configuration
 const API_BASE_URL = "http://localhost:8000/api";
@@ -507,7 +508,13 @@ export default function CreateLeaveApp() {
         fetchLeaveAllocations(employeeId);
       }
 
-      alert("Pengajuan cuti berhasil dibuat!");
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Pengajuan cuti berhasil dibuat!",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "OK",
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
 
