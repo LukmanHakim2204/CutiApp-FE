@@ -27,7 +27,7 @@ export default function Holiday() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! type: ${response.type}`);
       }
 
       const result = await response.json();
@@ -95,8 +95,8 @@ export default function Holiday() {
     return `In ${diffDays} days`;
   };
 
-  // Function to get status color based on days until
-  const getStatusColor = (date: string): string => {
+  // Function to get type color based on days until
+  const gettypeColor = (date: string): string => {
     const today = new Date();
     const holidayDate = new Date(date);
     const diffTime = holidayDate.getTime() - today.getTime();
@@ -109,9 +109,9 @@ export default function Holiday() {
     return "blue";
   };
 
-  // Function to get appropriate icon based on status
-  const getHolidayIcon = (status: Holiday["status"]) => {
-    switch (status) {
+  // Function to get appropriate icon based on type
+  const getHolidayIcon = (type: Holiday["type"]) => {
+    switch (type) {
       case "religious":
         return <Moon className="w-5 h-5 text-blue-600" />;
       case "national":
@@ -123,9 +123,9 @@ export default function Holiday() {
     }
   };
 
-  // Function to get holiday type based on status
-  const getHolidayType = (status: Holiday["status"]): string => {
-    switch (status) {
+  // Function to get holiday type based on type
+  const getHolidayType = (type: Holiday["type"]): string => {
+    switch (type) {
       case "religious":
         return "Religious Holiday";
       case "national":
@@ -171,9 +171,9 @@ export default function Holiday() {
   // Filter holidays based on active filter
   const filteredHolidays = allHolidays.filter((holiday) => {
     if (activeFilter === "all") return true;
-    if (activeFilter === "national") return holiday.status === "national";
-    if (activeFilter === "religious") return holiday.status === "religious";
-    if (activeFilter === "seasonal") return holiday.status === "seasonal";
+    if (activeFilter === "national") return holiday.type === "national";
+    if (activeFilter === "religious") return holiday.type === "religious";
+    if (activeFilter === "seasonal") return holiday.type === "seasonal";
     return true;
   });
 
@@ -289,7 +289,7 @@ export default function Holiday() {
                 </div>
               ) : (
                 filteredHolidays.map((holiday) => {
-                  const statusColor = getStatusColor(holiday.date);
+                  const typeColor = gettypeColor(holiday.date);
                   const daysUntil = getDaysUntil(holiday.date);
                   const isToday = daysUntil === "Today";
                   const isPassed = daysUntil === "Passed";
@@ -297,7 +297,7 @@ export default function Holiday() {
                   return (
                     <div
                       key={holiday.id}
-                      className={`holiday-card rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-${statusColor}-500 ${
+                      className={`holiday-card rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-${typeColor}-500 ${
                         isPassed ? "opacity-75" : ""
                       } ${
                         isToday ? "ring-2 ring-green-200 animate-pulse" : ""
@@ -305,17 +305,15 @@ export default function Holiday() {
                     >
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-3">
-                          <div
-                            className={`bg-${statusColor}-100 p-2 rounded-lg`}
-                          >
-                            {getHolidayIcon(holiday.status)}
+                          <div className={`bg-${typeColor}-100 p-2 rounded-lg`}>
+                            {getHolidayIcon(holiday.type)}
                           </div>
                           <div>
                             <p className="font-bold text-gray-800">
                               {holiday.description}
                             </p>
                             <p className="text-xs text-gray-500">
-                              {getHolidayType(holiday.status)}
+                              {getHolidayType(holiday.type)}
                             </p>
                             <p className="text-xs text-blue-600 font-medium">
                               {holiday.groupName}
@@ -324,12 +322,12 @@ export default function Holiday() {
                         </div>
                         <div className="text-right">
                           <p
-                            className={`text-sm font-bold text-${statusColor}-600`}
+                            className={`text-sm font-bold text-${typeColor}-600`}
                           >
                             {formatDate(holiday.date)}
                           </p>
                           <span
-                            className={`px-2 py-1 bg-${statusColor}-100 text-${statusColor}-700 text-xs font-medium rounded-full`}
+                            className={`px-2 py-1 bg-${typeColor}-100 text-${typeColor}-700 text-xs font-medium rounded-full`}
                           >
                             {daysUntil}
                           </span>
