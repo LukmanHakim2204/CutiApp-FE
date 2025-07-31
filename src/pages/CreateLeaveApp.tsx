@@ -11,21 +11,25 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Navbar from "../component/Navbar";
-import type { FormData, LeaveType, User } from "../types/type";
+import type { DisplayData, FormData, LeaveBalance, LeaveType, User } from "../types/type";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
 // API Configuration
 const API_BASE_URL = "http://localhost:8000/api";
-const LEAVE_TYPE_API_KEY = "Lukman321";
+const API_KEY = "Lukman321";
 
-interface LeaveBalance {
-  total: number;
-  used: number;
-  remaining: number;
-  color: string;
-  name: string;
+
+// Interface untuk data yang dikirim ke API
+interface LeaveApplicationData {
+  employee_id: number | null;
   leave_type_id: number;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  division_id: number | null;
+  leave_approver_id: number | null;
+  status: string;
 }
 
 // Updated interface to match your API response
@@ -56,22 +60,21 @@ const httpClient = {
   async get<T>(endpoint: string): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
 
-    // Check if this is the leave types endpoint
+    // Check if this is the leave types or holidays endpoint
     const isLeaveTypesEndpoint =
       endpoint === "/leavetypes" || endpoint.endsWith("/leavetypes");
+    const isHolidaysEndpoint =
+      endpoint === "/holidaylist" || endpoint.endsWith("/holidaylist");
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Accept: "application/json",
     };
-
-    if (isLeaveTypesEndpoint) {
-      headers["X-API-KEY"] = LEAVE_TYPE_API_KEY;
-    } else {
-      const token = localStorage.getItem("auth_token");
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
+    const token = localStorage.getItem("auth_token");
+    if (isLeaveTypesEndpoint || isHolidaysEndpoint) {
+      headers["X-API-KEY"] = API_KEY;
+    } else if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(url, {
@@ -135,10 +138,8 @@ const httpClient = {
           `${errorMessage}\n\nValidation Details:\n${validationErrorMessages}`
         );
       }
-
       throw new Error(errorMessage);
     }
-
     return await response.json();
   },
 };
@@ -152,9 +153,6 @@ export default function CreateLeaveApp() {
     employee_id: null,
     division_id: null,
     leave_approver_id: null,
-    employee_name: "",
-    division_name: "",
-    leave_approver_name: "",
   });
 
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
@@ -165,6 +163,7 @@ export default function CreateLeaveApp() {
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string[]>
   >({});
+  const [holidays, setHolidays] = useState<string[]>([]);
 
   // Updated state for leave allocations from API
   const [leaveAllocations, setLeaveAllocations] = useState<
@@ -230,6 +229,17 @@ export default function CreateLeaveApp() {
     }
   };
 
+  // Updated fetchHolidays function to use API key
+  const fetchHolidays = async (): Promise<void> => {
+    try {
+      const response = await httpClient.get<{ date: string }[]>("/holidaylist");
+      const holidayDates = response.map((holiday) => holiday.date);
+      setHolidays(holidayDates);
+    } catch {
+      // Log error but continue without holidays data
+    }
+  };
+
   // Updated function to convert API response to LeaveBalance format
   const getLeaveBalanceFromAPI = (leaveTypeId: number): LeaveBalance | null => {
     if (!Array.isArray(leaveAllocations) || leaveAllocations.length === 0) {
@@ -283,10 +293,11 @@ export default function CreateLeaveApp() {
     return balances;
   };
 
-  // Fetch leave types and user data on component mount
+  // Fetch leave types, user data, and holidays on component mount
   useEffect(() => {
     fetchCurrentUser();
     fetchLeaveTypes();
+    fetchHolidays(); // This will now use API key
   }, []);
 
   // Fetch leave allocations when employee data is available
@@ -297,30 +308,41 @@ export default function CreateLeaveApp() {
     }
   }, [currentUser]);
 
+  // State terpisah untuk data display
+  const [displayData, setDisplayData] = useState<DisplayData>({
+    employee_name: "",
+    division_name: "",
+    leave_approver_name: "",
+  });
+
   const fetchCurrentUser = async (): Promise<void> => {
     try {
       const userData = localStorage.getItem("user_data");
       if (userData) {
         const user: User = JSON.parse(userData);
         setCurrentUser(user);
-        // Set employee, division and leave approver data to form
+
+        // Set form data - hanya ID
         setFormData((prev) => ({
           ...prev,
           employee_id: user.employee?.id || user.id,
           division_id: user.employee?.division?.id || null,
           leave_approver_id: user.employee?.leaveApprover?.id || null,
+        }));
+
+        // Set display data - nama untuk ditampilkan
+        setDisplayData({
           employee_name: user.employee?.name || user.name || "Not assigned",
           division_name: user.employee?.division?.name || "Not assigned",
           leave_approver_name:
             user.employee?.leaveApprover?.name || "Not assigned",
-        }));
+        });
       } else {
-        // Fallback: fetch from API if not in localStorage
+        // Fallback: fetch from API
         const response = await httpClient.get<
           { success?: boolean; user?: User } | User
         >("/user");
 
-        // Fix: Handle the response type properly
         let user: User;
         if ("user" in response && response.user) {
           user = response.user;
@@ -336,17 +358,22 @@ export default function CreateLeaveApp() {
 
         setCurrentUser(user);
         localStorage.setItem("user_data", JSON.stringify(user));
-        // Set employee, division and leave approver data to form
+
+        // Set form data - hanya ID
         setFormData((prev) => ({
           ...prev,
           employee_id: user.employee?.id || user.id,
           division_id: user.employee?.division?.id || null,
           leave_approver_id: user.employee?.leaveApprover?.id || null,
+        }));
+
+        // Set display data - nama untuk ditampilkan
+        setDisplayData({
           employee_name: user.employee?.name || user.name || "Not assigned",
           division_name: user.employee?.division?.name || "Not assigned",
           leave_approver_name:
             user.employee?.leaveApprover?.name || "Not assigned",
-        }));
+        });
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
@@ -404,29 +431,50 @@ export default function CreateLeaveApp() {
     return 0;
   };
 
+  const isWeekend = (date: Date): boolean => {
+    const day = date.getDay();
+    return day === 0 || day === 6; // Sunday = 0, Saturday = 6
+  };
+
+  // Helper function to format date for API (ensure Y-m-d format)
+  const formatDateForAPI = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toISOString().split("T")[0]; // This ensures Y-m-d format
+  };
+
   // Validasi form berdasarkan tipe cuti
+  // Enhanced validation function
   const validateForm = (): string[] => {
     const errors: string[] = [];
     const leaveDays = calculateLeaveDays();
-
     const balance = getCurrentBalance();
 
     if (!formData.leave_type_id) errors.push("Tipe cuti harus dipilih");
     if (!formData.start_date) errors.push("Tanggal mulai harus diisi");
     if (!formData.end_date) errors.push("Tanggal selesai harus diisi");
-    if (!formData.reason) errors.push("Alasan cuti harus diisi");
+
+    // Enhanced reason validation (min 10 characters)
+    if (!formData.reason) {
+      errors.push("Alasan cuti harus diisi");
+    } else if (formData.reason.trim().length < 10) {
+      errors.push("Alasan cuti minimal 10 karakter");
+    } else if (formData.reason.trim().length > 500) {
+      errors.push("Alasan cuti maksimal 500 karakter");
+    }
+
     if (!formData.employee_id) errors.push("Data employee tidak tersedia");
     if (!formData.division_id) errors.push("Data divisi tidak tersedia");
     if (!formData.leave_approver_id)
       errors.push("Data leave approver tidak tersedia");
 
-    // Date validation
+    // Enhanced date validation
     if (formData.start_date && formData.end_date) {
       const startDate = new Date(formData.start_date);
       const endDate = new Date(formData.end_date);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
+      // Check if dates are in the past
       if (startDate < today) {
         errors.push("Tanggal mulai tidak boleh kurang dari hari ini");
       }
@@ -434,9 +482,37 @@ export default function CreateLeaveApp() {
       if (endDate < startDate) {
         errors.push("Tanggal selesai tidak boleh kurang dari tanggal mulai");
       }
+
+      // Check for weekends
+      if (isWeekend(startDate)) {
+        errors.push("Tanggal mulai tidak boleh di akhir pekan (Sabtu/Minggu)");
+      }
+
+      if (isWeekend(endDate)) {
+        errors.push(
+          "Tanggal selesai tidak boleh di akhir pekan (Sabtu/Minggu)"
+        );
+      }
+
+      // Check for holidays
+      if (holidays.includes(formData.start_date)) {
+        errors.push("Tanggal mulai tidak boleh pada hari libur");
+      }
+
+      if (holidays.includes(formData.end_date)) {
+        errors.push("Tanggal selesai tidak boleh pada hari libur");
+      }
+
+      // Check maximum 30 days
+      const diffInDays = Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      if (diffInDays > 30) {
+        errors.push("Periode cuti tidak boleh lebih dari 30 hari");
+      }
     }
 
-    // Only validate balance if we have allocation data
+    // Balance validation (only if we have allocation data)
     if (
       formData.leave_type_id &&
       balance &&
@@ -458,7 +534,6 @@ export default function CreateLeaveApp() {
 
   const handleSubmit = async (): Promise<void> => {
     const errors = validateForm();
-
     if (errors.length > 0) {
       setError("Validation errors:\n" + errors.join("\n"));
       return;
@@ -474,25 +549,21 @@ export default function CreateLeaveApp() {
     setValidationErrors({});
 
     try {
-      // ========== PERBAIKAN: HANYA KIRIM ID, TIDAK KIRIM NAMA ==========
-      // Prepare data for API - HANYA ID yang dikirim ke backend
-      const submitData = {
+      // Prepare data for API with properly formatted dates
+      const submitData: LeaveApplicationData = {
         employee_id: formData.employee_id,
         leave_type_id: parseInt(formData.leave_type_id),
-        start_date: formData.start_date,
-        end_date: formData.end_date,
-        reason: formData.reason,
+        start_date: formatDateForAPI(formData.start_date), // Ensure proper format
+        end_date: formatDateForAPI(formData.end_date), // Ensure proper format
+        reason: formData.reason.trim(), // Trim whitespace
         division_id: formData.division_id,
         leave_approver_id: formData.leave_approver_id,
         status: "pending",
-        // TIDAK mengirim: employee_name, division_name, leave_approver_name
       };
-
-      console.log("Final submit data (IDs only):", submitData);
 
       await httpClient.post("/leave-applications", submitData);
 
-      // Reset form on success, but keep employee, division and leave approver data
+      // Reset form
       setFormData((prev) => ({
         leave_type_id: "",
         start_date: "",
@@ -501,12 +572,9 @@ export default function CreateLeaveApp() {
         employee_id: prev.employee_id,
         division_id: prev.division_id,
         leave_approver_id: prev.leave_approver_id,
-        employee_name: prev.employee_name,
-        division_name: prev.division_name,
-        leave_approver_name: prev.leave_approver_name,
       }));
 
-      // Refresh leave allocations after successful submission
+      // Refresh leave allocations
       if (currentUser?.employee?.id || currentUser?.id) {
         const employeeId = currentUser.employee?.id || currentUser.id;
         fetchLeaveAllocations(employeeId);
@@ -520,58 +588,33 @@ export default function CreateLeaveApp() {
         confirmButtonText: "OK",
       });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      if (err instanceof Error) {
+        // Parse validation errors from Laravel response
+        const errorMessage = err.message;
 
-      // Extract validation errors from error message
-      if (errorMessage.includes("Validation Details:")) {
-        const parts = errorMessage.split("Validation Details:");
-        if (parts.length > 1) {
-          const validationPart = parts[1].trim();
-          const fieldErrors: Record<string, string[]> = {};
-
-          validationPart.split("\n").forEach((line) => {
-            const [field, ...messageParts] = line.split(": ");
-            if (field && messageParts.length > 0) {
-              const message = messageParts.join(": ");
-              fieldErrors[field.trim()] = [message];
+        // Check if it's a validation error with details
+        if (errorMessage.includes("Validation Details:")) {
+          setError(errorMessage);
+        } else {
+          // Try to parse JSON error for better display
+          try {
+            const errorData = JSON.parse(errorMessage);
+            if (errorData.errors) {
+              setValidationErrors(errorData.errors);
+              setError("Validation failed. Please check the form fields.");
+            } else {
+              setError(
+                `Failed to create leave application: ${
+                  errorData.message || errorMessage
+                }`
+              );
             }
-          });
-
-          setValidationErrors(fieldErrors);
+          } catch {
+            setError(`Failed to create leave application: ${errorMessage}`);
+          }
         }
-      }
-
-      // Check for common error scenarios
-      if (
-        errorMessage.includes("401") ||
-        errorMessage.includes("Unauthorized")
-      ) {
-        setError("Session expired. Please login again.");
-      } else if (
-        errorMessage.includes("403") ||
-        errorMessage.includes("Forbidden")
-      ) {
-        setError("You don't have permission to create leave applications.");
-      } else if (
-        errorMessage.includes("422") ||
-        errorMessage.includes("Validation failed")
-      ) {
-        // Don't set general error message for validation errors, they're handled separately
-        setError("Please check the form for validation errors.");
-      } else if (
-        errorMessage.includes("500") ||
-        errorMessage.includes("Internal Server Error")
-      ) {
-        setError(
-          "Server error. Please try again later or contact administrator."
-        );
-      } else if (
-        errorMessage.includes("Network Error") ||
-        errorMessage.includes("fetch")
-      ) {
-        setError("Network error. Please check your internet connection.");
       } else {
-        setError(`Failed to create leave application: ${errorMessage}`);
+        setError("An unexpected error occurred. Please try again.");
       }
     } finally {
       setSubmitting(false);
@@ -770,6 +813,7 @@ export default function CreateLeaveApp() {
           </div>
 
           {/* Summary Cards - Only show if there are allocations */}
+          {/* Summary Cards - Only show if there are allocations */}
           {!hasNoAllocations && currentBalance && (
             <div className="grid grid-cols-3 gap-3 mt-6 text-center">
               <div className="bg-gray-900 rounded-xl p-4">
@@ -834,7 +878,7 @@ export default function CreateLeaveApp() {
                   <div className="relative">
                     <input
                       type="text"
-                      value={formData.employee_name}
+                      value={displayData.employee_name} // Gunakan displayData
                       readOnly
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-600 cursor-not-allowed pl-12"
                     />
@@ -849,8 +893,6 @@ export default function CreateLeaveApp() {
                     </p>
                   )}
                 </div>
-
-                {/* Division Field */}
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
                     Divisi (ID: {formData.division_id})
@@ -858,7 +900,7 @@ export default function CreateLeaveApp() {
                   <div className="relative">
                     <input
                       type="text"
-                      value={formData.division_name}
+                      value={displayData.division_name} // Gunakan displayData
                       readOnly
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-600 cursor-not-allowed pl-12"
                     />
@@ -873,7 +915,6 @@ export default function CreateLeaveApp() {
                     </p>
                   )}
                 </div>
-
                 {/* Leave Approver Field */}
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
@@ -882,7 +923,7 @@ export default function CreateLeaveApp() {
                   <div className="relative">
                     <input
                       type="text"
-                      value={formData.leave_approver_name}
+                      value={displayData.leave_approver_name} // Gunakan displayData
                       readOnly
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-600 cursor-not-allowed pl-12"
                     />
@@ -1136,31 +1177,25 @@ export default function CreateLeaveApp() {
               {/* Reason */}
               <div>
                 <label className="block text-gray-700 text-sm font-medium mb-2">
-                  Alasan Cuti
+                  Alasan Cuti ({formData.reason.length}/500 karakter)
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Masukkan alasan pengajuan cuti..."
+                  placeholder="Masukkan alasan pengajuan cuti (minimal 10 karakter)..."
                   value={formData.reason}
                   onChange={(e) => handleInputChange("reason", e.target.value)}
                   className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none transition-colors text-gray-700 placeholder-gray-400 resize-none bg-white ${
-                    validationErrors.reason
+                    validationErrors.reason || formData.reason.length < 10
                       ? "border-red-300 focus:border-red-500"
                       : "border-orange-200 focus:border-orange-400"
                   }`}
                   disabled={hasNoAllocations}
                 />
-                {validationErrors.reason && (
-                  <div className="mt-1 text-sm text-red-600">
-                    {validationErrors.reason.map(
-                      (error: string, index: number) => (
-                        <div key={index} className="flex items-center gap-1">
-                          <AlertCircle size={14} />
-                          {error}
-                        </div>
-                      )
-                    )}
-                  </div>
+                {formData.reason.length > 0 && formData.reason.length < 10 && (
+                  <p className="text-sm text-red-600 mt-1">
+                    Alasan minimal 10 karakter (saat ini:{" "}
+                    {formData.reason.length})
+                  </p>
                 )}
               </div>
 
