@@ -1,5 +1,3 @@
-
-
 export interface StatusColor {
   bg: string;
   text: string;
@@ -24,35 +22,36 @@ export interface User {
   name: string;
   email: string;
   role?: Array<{ name: string }>;
-  employee?: {
-    id: number;
-    slug: string;
-    first_name: string;
-    last_name: string;
-    name: string;
-    gender: string;
-    national_id: string;
-    employee_phone: string;
-    email: string;
-    profile_picture?: string;
-    permanent_address?: string;
-    marital_status?: string;
-    division?: {
-      id: number;
-      name: string;
-    };
-    position?: {
-      id: number;
-      name: string;
-    };
-    leaveApprover?: {
-      id: number;
-      name: string;
-    };
-  };
+  employee?: EmployeeDetail;
 }
 
+export interface EmployeeDetail {
+  id: number;
+  slug: string;
+  first_name: string;
+  last_name: string;
+  name: string;
+  gender: string;
+  national_id: string;
+  employee_phone: string;
+  email: string;
+  profile_picture?: string;
+  permanent_address?: string;
+  marital_status?: string;
+  division?: Division;
+  position?: Position;
+  leaveApprover?: LeaveApprover;
+}
 
+export interface Division {
+  id: number;
+  name: string;
+}
+
+export interface Position {
+  id: number;
+  name: string;
+}
 
 export interface FormData {
   leave_type_id: string;
@@ -62,12 +61,26 @@ export interface FormData {
   employee_id: number | null;
   division_id: number | null;
   leave_approver_id: number | null;
+}
+
+export interface LeaveBalance {
+  total: number;
+  used: number;
+  remaining: number;
+  color: string;
+  name: string;
+  leave_type_id?: number; // optional for general use
+  leave_type?: string; // optional for different structure
+  allocated_days?: number;
+  used_days?: number;
+  remaining_days?: number;
+}
+
+export interface DisplayData {
   employee_name: string;
   division_name: string;
   leave_approver_name: string;
 }
-
-
 
 export interface LeaveType {
   id: number;
@@ -89,32 +102,13 @@ export interface LeaveApplication {
   status: "pending" | "approved" | "rejected";
   reason?: string;
   leave_type: LeaveType;
-  employee?: Employee;
-  division?: Division;
+  employee?: { name: string };
+  division?: { name: string };
   leave_approver?: LeaveApprover;
   created_at?: string;
   updated_at?: string;
 }
-interface Employee {
-  name: string;
-}
 
-interface Division {
-  name: string;
-}
-export interface LeaveBalance {
-  leave_type: string;
-  allocated_days: number;
-  used_days: number;
-  remaining_days: number;
-}
-export interface LeaveBalance {
-  total: number;
-  used: number;
-  remaining: number;
-  color: string;
-  name: string;
-}
 export interface Statistics {
   total: number;
   pending: number;
@@ -129,7 +123,6 @@ export interface DashboardData {
   upcoming_leave: LeaveApplication[];
 }
 
-// Interface untuk create leave application
 export interface CreateLeaveApplicationRequest {
   start_date: string;
   end_date: string;
@@ -137,7 +130,6 @@ export interface CreateLeaveApplicationRequest {
   reason?: string;
 }
 
-// Interface untuk update leave application
 export interface UpdateLeaveApplicationRequest {
   start_date?: string;
   end_date?: string;
@@ -146,7 +138,6 @@ export interface UpdateLeaveApplicationRequest {
   status?: "pending" | "approved" | "rejected";
 }
 
-// Interface untuk API Error Response
 export interface ApiErrorResponse {
   message?: string;
   error?: string;
