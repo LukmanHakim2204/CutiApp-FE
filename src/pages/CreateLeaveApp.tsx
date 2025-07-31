@@ -23,7 +23,7 @@ import Swal from "sweetalert2";
 
 // API Configuration
 const API_BASE_URL = "https://dashbar.barareca.co.id/api";
-const API_KEY = "Lukman321";
+const API_KEY = "YjHSSITOc1NDh945b7GlMzCfKbJPGB2d";
 
 // Interface untuk data yang dikirim ke API
 interface LeaveApplicationData {
