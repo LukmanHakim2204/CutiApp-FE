@@ -11,14 +11,19 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Navbar from "../component/Navbar";
-import type { DisplayData, FormData, LeaveBalance, LeaveType, User } from "../types/type";
+import type {
+  DisplayData,
+  FormData,
+  LeaveBalance,
+  LeaveType,
+  User,
+} from "../types/type";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
 // API Configuration
-const API_BASE_URL = "http://localhost:8000/api";
+const API_BASE_URL = "https://dashbar.barareca.co.id/api";
 const API_KEY = "Lukman321";
-
 
 // Interface untuk data yang dikirim ke API
 interface LeaveApplicationData {
