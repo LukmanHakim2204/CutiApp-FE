@@ -878,7 +878,7 @@ export default function CreateLeaveApp() {
                 {/* Employee Field */}
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Employee (ID: {formData.employee_id})
+                    Employee
                   </label>
                   <div className="relative">
                     <input
@@ -900,7 +900,7 @@ export default function CreateLeaveApp() {
                 </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Divisi (ID: {formData.division_id})
+                    Divisi
                   </label>
                   <div className="relative">
                     <input
@@ -923,7 +923,7 @@ export default function CreateLeaveApp() {
                 {/* Leave Approver Field */}
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Leave Approver (ID: {formData.leave_approver_id})
+                    Leave Approver
                   </label>
                   <div className="relative">
                     <input
