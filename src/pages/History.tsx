@@ -269,7 +269,7 @@ export default function History() {
                           Approved By
                         </div>
                         <div className="text-xs font-medium text-gray-700">
-                          {application.leave_approver?.name || "N/A"}
+                          {application.leaveApprover?.name || "N/A"}
                         </div>
                       </div>
                     </div>
