@@ -11,6 +11,7 @@ import {
   UserX,
   XCircle,
   RefreshCw,
+  Bell,
 } from "lucide-react";
 
 import Navbar from "../component/Navbar";
@@ -269,7 +270,7 @@ const FilterTab: React.FC<FilterTabProps> = ({
   return (
     <button
       onClick={onClick}
-      className={`flex-1 py-2 px-4 text-sm font-medium rounded-lg transition-colors ${
+      className={`flex-1 py-2 px-4 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
         active
           ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-sm"
           : "text-gray-600 hover:bg-gray-200"
@@ -462,13 +463,19 @@ export default function Home(): React.ReactElement {
                 <button
                   onClick={handleRefresh}
                   disabled={dashboardLoading}
-                  className="bg-white/20 p-2 rounded-full hover:bg-white/30 transition-colors"
+                  className="bg-white/20 p-2 rounded-full hover:bg-white/30 transition-colors cursor-pointer"
                 >
                   <RefreshCw
                     className={`w-5 h-5 text-white ${
                       dashboardLoading ? "animate-spin" : ""
                     }`}
                   />
+                </button>
+                <button
+                  className="bg-white/20 p-2 rounded-full hover:bg-white/30 transition-colors cursor-pointer"
+                  title="Notifications"
+                >
+                  <Bell className="w-5 h-5 text-white" />
                 </button>
               </div>
             </div>
