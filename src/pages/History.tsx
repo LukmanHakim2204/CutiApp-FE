@@ -7,6 +7,7 @@ import Navbar from "../component/Navbar";
 import AuthGuard from "../component/AuthGuard";
 import type { LeaveApplication } from "../types/type";
 import { Link } from "react-router";
+import { apiClient } from "../services/api";
 
 interface ApiResponse {
   data?: LeaveApplication[];
@@ -37,9 +38,9 @@ export default function History() {
         }
 
         // Make sure to use the full URL if your frontend and backend are on different ports
-        const baseURL = "https://dashbar.barareca.co.id";
-        const response = await axios.get<ApiResponse>(
-          `${baseURL}/api/leave-applications`,
+
+        const response = await apiClient.get<ApiResponse>(
+          `/leave-applications`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

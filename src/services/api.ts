@@ -22,6 +22,11 @@ const getApiBaseUrl = () => {
 
   return "https://dashbar.barareca.co.id/api";
 };
+const getApiKey = () => {
+  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_KEY) {
+    return import.meta.env.VITE_API_KEY;
+  }
+}
 
 // Create axios instance
 const apiClient = axios.create({
@@ -30,6 +35,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'X-API-KEY': getApiKey()
   },
 });
 

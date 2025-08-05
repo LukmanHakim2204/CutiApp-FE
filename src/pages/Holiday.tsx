@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Navbar from "../component/Navbar";
 import type { ExtendedHoliday, Holiday, HolidayGroup } from "../types/type";
 import AuthGuard from "../component/AuthGuard";
+import { apiClient } from "../services/api";
 
 // Define interfaces for type safety
 
@@ -18,20 +19,9 @@ export default function Holiday() {
   const fetchHolidays = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://dashbar.barareca.co.id/api/holidaylist", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": "YjHSSITOc1NDh945b7GlMzCfKbJPGB2d",
-        },
-      });
+      const response = await apiClient.get("/holidaylist");
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! type: ${response.type}`);
-      }
-
-      const result = await response.json();
-      setHolidays(result.data || []);
+      setHolidays(response.data.data);
     } catch (err) {
       // Fix: Handle unknown error type
       const errorMessage =
