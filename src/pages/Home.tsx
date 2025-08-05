@@ -59,8 +59,36 @@ const getStatusColor = (status: string): StatusColor => {
     pending: { bg: "bg-yellow-100", text: "text-yellow-800" },
     approved: { bg: "bg-green-100", text: "text-green-800" },
     rejected: { bg: "bg-red-100", text: "text-red-800" },
+    cancelled: { bg: "bg-red-100", text: "text-red-800" }, // Same as rejected
   };
   return colors[status?.toLowerCase()] || colors.pending;
+};
+
+// Helper function to normalize rejected/cancelled status
+const normalizeRejectedStatus = (status: string): string => {
+  const normalizedStatus = status?.toLowerCase();
+  if (normalizedStatus === "cancelled" || normalizedStatus === "rejected") {
+    return "rejected";
+  }
+  return normalizedStatus;
+};
+
+// Helper function to display status text
+const getDisplayStatus = (status: string): string => {
+  const normalizedStatus = status?.toLowerCase();
+  if (normalizedStatus === "cancelled") {
+    return "Cancelled";
+  }
+  if (normalizedStatus === "rejected") {
+    return "Rejected ";
+  }
+  if (normalizedStatus === "approved") {
+    return "Approved";
+  }
+  if (normalizedStatus === "pending") {
+    return "Pending";
+  }
+  return status || "Pending";
 };
 
 // Stats Card Component
@@ -141,10 +169,12 @@ const LeaveApplicationItem: React.FC<LeaveApplicationItemProps> = ({
   };
 
   const getIconColor = (status: string): string => {
-    switch (status?.toLowerCase()) {
+    const normalizedStatus = status?.toLowerCase();
+    switch (normalizedStatus) {
       case "approved":
         return "bg-green-100 text-green-600";
       case "rejected":
+      case "cancelled":
         return "bg-red-100 text-red-600";
       case "pending":
         return "bg-orange-100 text-orange-600";
@@ -154,8 +184,10 @@ const LeaveApplicationItem: React.FC<LeaveApplicationItemProps> = ({
   };
 
   const getApproverIcon = () => {
-    if (application.status === "approved") return UserCheck;
-    if (application.status === "rejected") return UserX;
+    const normalizedStatus = application.status?.toLowerCase();
+    if (normalizedStatus === "approved") return UserCheck;
+    if (normalizedStatus === "rejected" || normalizedStatus === "cancelled")
+      return UserX;
     return UserIcon;
   };
 
@@ -182,10 +214,13 @@ const LeaveApplicationItem: React.FC<LeaveApplicationItemProps> = ({
           </div>
         </div>
         <button
-          onClick={() => onStatusClick && onStatusClick(application.status)}
+          onClick={() =>
+            onStatusClick &&
+            onStatusClick(normalizeRejectedStatus(application.status))
+          }
           className={`px-3 py-1 ${statusColor.bg} ${statusColor.text} text-xs font-medium rounded-full status-badge hover:opacity-80 transition-opacity`}
         >
-          {application.status || "Pending"}
+          {getDisplayStatus(application.status)}
         </button>
       </div>
 
@@ -207,7 +242,7 @@ const LeaveApplicationItem: React.FC<LeaveApplicationItemProps> = ({
             <ApproverIcon className="w-4 h-4 text-gray-600" />
           </div>
           <p className="text-xs text-center text-gray-500 mt-1">
-            {application.leave_approver?.name || "Pending"}
+            {application.leaveApprover?.name || "Admin"}
           </p>
         </div>
       </div>
@@ -379,7 +414,6 @@ export default function Home(): React.ReactElement {
           const manualFiltered = recentApps.filter(
             (app) => app.status?.toLowerCase() === "pending"
           );
-
           return manualFiltered;
         }
       case "approved":
@@ -395,10 +429,11 @@ export default function Home(): React.ReactElement {
         if (filteredApplications.length > 0) {
           return filteredApplications;
         } else {
-          const manualFiltered = recentApps.filter(
-            (app) => app.status?.toLowerCase() === "rejected"
-          );
-
+          // Filter untuk rejected dan cancelled
+          const manualFiltered = recentApps.filter((app) => {
+            const status = app.status?.toLowerCase();
+            return status === "rejected" || status === "cancelled";
+          });
           return manualFiltered;
         }
       default:
@@ -478,7 +513,7 @@ export default function Home(): React.ReactElement {
                   loading={dashboardLoading}
                 />
                 <StatsCard
-                  title="Rejected"
+                  title="Rejected / Cancelled"
                   value={dashboardData.statistics.rejected}
                   icon={XCircle}
                   color="red"
@@ -548,7 +583,7 @@ export default function Home(): React.ReactElement {
                 onClick={() => handleFilterChange("rejected")}
                 icon={XCircle}
               >
-                Rejected
+                Rejected / Cancelled
               </FilterTab>
             </div>
 

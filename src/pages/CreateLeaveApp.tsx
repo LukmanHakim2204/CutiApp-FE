@@ -22,8 +22,6 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
 // API Configuration
-const API_BASE_URL = "https://dashbar.barareca.co.id/api";
-const API_KEY = "YjHSSITOc1NDh945b7GlMzCfKbJPGB2d";
 
 // Interface untuk data yang dikirim ke API
 interface LeaveApplicationData {
@@ -63,7 +61,7 @@ interface LeaveAllocationApiResponse {
 // Create a simple HTTP client using fetch (simulating axios interface)
 const httpClient = {
   async get<T>(endpoint: string): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = `${import.meta.env.VITE_API_URL}${endpoint}`;
 
     // Check if this is the leave types or holidays endpoint
     const isLeaveTypesEndpoint =
@@ -77,7 +75,7 @@ const httpClient = {
     };
     const token = localStorage.getItem("auth_token");
     if (isLeaveTypesEndpoint || isHolidaysEndpoint) {
-      headers["X-API-KEY"] = API_KEY;
+      headers["X-API-KEY"] = import.meta.env.VITE_API_KEY;
     } else if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -98,7 +96,7 @@ const httpClient = {
   },
 
   async post<T>(endpoint: string, data: unknown): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = `${import.meta.env.VITE_API_URL}${endpoint}`;
     const token = localStorage.getItem("auth_token");
 
     const headers: Record<string, string> = {
@@ -878,7 +876,7 @@ export default function CreateLeaveApp() {
                 {/* Employee Field */}
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Employee (ID: {formData.employee_id})
+                    Employee
                   </label>
                   <div className="relative">
                     <input
@@ -900,7 +898,7 @@ export default function CreateLeaveApp() {
                 </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Divisi (ID: {formData.division_id})
+                    Divisi
                   </label>
                   <div className="relative">
                     <input
@@ -923,7 +921,7 @@ export default function CreateLeaveApp() {
                 {/* Leave Approver Field */}
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Leave Approver (ID: {formData.leave_approver_id})
+                    Leave Approver
                   </label>
                   <div className="relative">
                     <input

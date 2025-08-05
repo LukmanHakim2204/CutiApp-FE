@@ -104,7 +104,7 @@ export interface LeaveApplication {
   leave_type: LeaveType;
   employee?: { name: string };
   division?: { name: string };
-  leave_approver?: LeaveApprover;
+  leaveApprover?: LeaveApprover;
   created_at?: string;
   updated_at?: string;
 }

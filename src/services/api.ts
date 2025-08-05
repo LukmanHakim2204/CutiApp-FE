@@ -1,4 +1,4 @@
-// src/services/api.ts - Updated with Axios
+// src/services/api.ts - Updated with Axios and Cancelled Status Support
 import axios, { type AxiosResponse, AxiosError } from 'axios';
 import type {
   ApiErrorResponse,
@@ -22,6 +22,11 @@ const getApiBaseUrl = () => {
 
   return "https://dashbar.barareca.co.id/api";
 };
+const getApiKey = () => {
+  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_KEY) {
+    return import.meta.env.VITE_API_KEY;
+  }
+}
 
 // Create axios instance
 const apiClient = axios.create({
@@ -30,6 +35,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'X-API-KEY': getApiKey()
   },
 });
 
@@ -89,6 +95,14 @@ export const getCurrentUser = (): User | null => {
   }
 };
 
+// Helper function to handle status mapping for API calls
+const mapStatusForAPI = (status: string): string => {
+  // When requesting "rejected", we want to get both rejected and cancelled
+  if (status === 'rejected') {
+    return 'rejected,cancelled'; // Send comma-separated values to API
+  }
+  return status;
+};
 
 // API Service
 export const apiService = {
@@ -119,17 +133,67 @@ export const apiService = {
 
     const params: Record<string, string> = {};
     if (status && status !== "all") {
-      params.status = status;
+      // Map the status for API call
+      const mappedStatus = mapStatusForAPI(status);
+      params.status = mappedStatus;
     }
 
-    const response = await apiClient.get<{ data: LeaveApplication[] }>('/leave-applications/status', { params });
+    try {
+      const response = await apiClient.get<{ data: LeaveApplication[] }>('/leave-applications/status', { params });
 
-    if (!response.data.data) {
-      const applications = Array.isArray(response.data) ? response.data : [];
-      return { data: applications as LeaveApplication[] };
+      if (!response.data.data) {
+        const applications = Array.isArray(response.data) ? response.data : [];
+        return { data: applications as LeaveApplication[] };
+      }
+
+      // If we requested "rejected" status, we need to filter locally too
+      // in case the API doesn't support comma-separated status values
+      let applications = response.data.data;
+      
+      if (status === 'rejected') {
+        applications = applications.filter(app => {
+          const appStatus = app.status?.toLowerCase();
+          return appStatus === 'rejected' || appStatus === 'cancelled';
+        });
+      }
+
+      return { data: applications };
+    } catch (error) {
+      // Fallback: if API doesn't support comma-separated status,
+      // try separate requests and combine results
+      if (status === 'rejected') {
+        try {
+          const [rejectedResponse, cancelledResponse] = await Promise.allSettled([
+            apiClient.get<{ data: LeaveApplication[] }>('/leave-applications/status', { 
+              params: { status: 'rejected' } 
+            }),
+            apiClient.get<{ data: LeaveApplication[] }>('/leave-applications/status', { 
+              params: { status: 'cancelled' } 
+            })
+          ]);
+
+          const rejectedData = rejectedResponse.status === 'fulfilled' 
+            ? rejectedResponse.value.data.data || []
+            : [];
+          
+          const cancelledData = cancelledResponse.status === 'fulfilled' 
+            ? cancelledResponse.value.data.data || []
+            : [];
+
+          // Combine and deduplicate by ID
+          const combined = [...rejectedData, ...cancelledData];
+          const unique = combined.filter((app, index, self) => 
+            index === self.findIndex(a => a.id === app.id)
+          );
+
+          return { data: unique };
+        } catch {
+          throw error; // Throw original error if fallback also fails
+        }
+      }
+      
+      throw error;
     }
-
-    return response.data;
   },
 
   async createLeaveApplication(data: CreateLeaveApplicationRequest): Promise<LeaveApplication> {
