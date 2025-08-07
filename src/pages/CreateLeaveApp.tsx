@@ -21,7 +21,7 @@ import type {
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
-// API Configuration
+
 
 // Interface untuk data yang dikirim ke API
 interface LeaveApplicationData {

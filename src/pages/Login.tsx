@@ -101,7 +101,6 @@ export default function Login() {
           {/* Orange decorative circles */}
           <div className="w-100 h-100 top-[-175px] absolute bg-orange-500 rounded-full justify-center"></div>
           <div className="w-100 h-100 top-[700px] absolute bg-orange-500 rounded-full justify-center"></div>
-
           {/* Logo placeholder */}
           <img
             className="w-25 h-25 left-1/2 transform -translate-x-12 top-[65px] absolute"
