@@ -148,7 +148,7 @@ export interface Holiday {
   id: string;
   description: string;
   date: string;
-  type: "religious" | "national" | "seasonal";
+  type: "religious" | "nasionals" | "seasonal";
 }
 
 export interface HolidayGroup {

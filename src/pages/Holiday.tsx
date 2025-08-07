@@ -7,7 +7,7 @@ import { apiClient } from "../services/api";
 
 // Define interfaces for type safety
 
-type FilterType = "all" | "national" | "religious" | "seasonal";
+type FilterType = "all" | "nasionals" | "religious" | "seasonal";
 
 export default function Holiday() {
   const [holidays, setHolidays] = useState<HolidayGroup[]>([]);
@@ -104,7 +104,7 @@ export default function Holiday() {
     switch (type) {
       case "religious":
         return <Moon className="w-5 h-5 text-blue-600" />;
-      case "national":
+      case "nasionals":
         return <Flag className="w-5 h-5 text-red-600" />;
       case "seasonal":
         return <Sun className="w-5 h-5 text-yellow-600" />;
@@ -118,7 +118,7 @@ export default function Holiday() {
     switch (type) {
       case "religious":
         return "Religious Holiday";
-      case "national":
+      case "nasionals":
         return "National Holiday";
       case "seasonal":
         return "Seasonal Holiday";
@@ -161,7 +161,7 @@ export default function Holiday() {
   // Filter holidays based on active filter
   const filteredHolidays = allHolidays.filter((holiday) => {
     if (activeFilter === "all") return true;
-    if (activeFilter === "national") return holiday.type === "national";
+    if (activeFilter === "nasionals") return holiday.type === "nasionals";
     if (activeFilter === "religious") return holiday.type === "religious";
     if (activeFilter === "seasonal") return holiday.type === "seasonal";
     return true;
@@ -226,9 +226,9 @@ export default function Holiday() {
                 All
               </button>
               <button
-                onClick={() => setActiveFilter("national")}
+                onClick={() => setActiveFilter("nasionals")}
                 className={`flex-1 py-2 px-4 text-sm font-medium rounded-lg transition-colors ${
-                  activeFilter === "national"
+                  activeFilter === "nasionals"
                     ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-sm"
                     : "text-gray-600 hover:bg-gray-200"
                 }`}
