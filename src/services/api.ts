@@ -20,7 +20,8 @@ const getApiBaseUrl = () => {
     return process.env.REACT_APP_API_URL;
   }
 
-  return "https://dashbar.barareca.co.id/api";
+  // return "https://dashbar.barareca.co.id/api";
+  return "http://127.0.0.1:8001/api";
 };
 const getApiKey = () => {
   if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_KEY) {

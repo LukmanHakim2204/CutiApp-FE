@@ -2,8 +2,8 @@ import { ArrowLeft, LogOutIcon, Mail, MapPin, Phone } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import Navbar from "../component/Navbar";
-import AuthGuard from "../component/AuthGuard";
+import Navbar from "../components/Navbar";
+import AuthGuard from "../components/AuthGuard";
 import {
   apiClient,
   isAuthenticated,
@@ -17,7 +17,21 @@ export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const baseUrl = "https://dashbar.barareca.co.id/storage";
+  
+  // Get base URL from api service
+  const getApiBaseUrl = () => {
+    if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) {
+      return import.meta.env.VITE_API_URL;
+    }
+
+    if (typeof process !== 'undefined' && process.env?.REACT_APP_API_URL) {
+      return process.env.REACT_APP_API_URL;
+    }
+
+    return "https://dashbar.barareca.co.id/api";
+  };
+  
+  const baseUrl = getApiBaseUrl().replace('/api', '/storage');
 
   useEffect(() => {
     const fetchUserData = async () => {

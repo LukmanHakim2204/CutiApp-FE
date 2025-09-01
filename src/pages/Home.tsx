@@ -1,32 +1,10 @@
 // src/components/Home.tsx
 import React, { useState, useEffect } from "react";
-import {
-  Calendar,
-  CalendarDays,
-  CheckCircle,
-  Clock,
-  Heart,
-  UserCheck,
-  UserIcon,
-  UserX,
-  XCircle,
-  RefreshCw,
-  Bell,
-} from "lucide-react";
-
-import Navbar from "../component/Navbar";
-
+import {Calendar,CalendarDays,CheckCircle,Clock,Heart,UserCheck,UserIcon,UserX,XCircle,RefreshCw,Bell,} from "lucide-react";
+import Navbar from "../components/Navbar";
 import { apiService, isAuthenticated, getCurrentUser } from "../services/api";
-import AuthGuard from "../component/AuthGuard";
-import type {
-  ColorClasses,
-  DashboardData,
-  LeaveApplication,
-  LeaveType,
-  StatsCardProps,
-  StatusColor,
-  User,
-} from "../types/type";
+import AuthGuard from "../components/AuthGuard";
+import type {ColorClasses,DashboardData,LeaveApplication,LeaveType,StatsCardProps,StatusColor,User,} from "../types/type";
 
 // Type definitions for component props
 interface LeaveApplicationItemProps {

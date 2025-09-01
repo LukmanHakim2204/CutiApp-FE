@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 // Import your actual components
-import Navbar from "../component/Navbar";
-import AuthGuard from "../component/AuthGuard";
+import Navbar from "../components/Navbar";
+import AuthGuard from "../components/AuthGuard";
 import type { LeaveApplication } from "../types/type";
 import { Link } from "react-router";
 import { apiClient } from "../services/api";
@@ -91,7 +91,7 @@ export default function History() {
           } else if (err.request) {
             // Network error
             errorMessage =
-              "Network error. Please check if the server is running on https://dashbar.barareca.co.id";
+              "Network error. Please check your connection.";
           }
         } else if (err instanceof Error) {
           errorMessage = err.message;

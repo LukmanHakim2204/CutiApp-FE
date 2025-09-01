@@ -10,7 +10,7 @@ import {
   FileX,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import Navbar from "../component/Navbar";
+import Navbar from "../components/Navbar";
 import type {
   DisplayData,
   FormData,
@@ -61,7 +61,20 @@ interface LeaveAllocationApiResponse {
 // Create a simple HTTP client using fetch (simulating axios interface)
 const httpClient = {
   async get<T>(endpoint: string): Promise<T> {
-    const url = `${import.meta.env.VITE_API_URL}${endpoint}`;
+    // Import the getApiBaseUrl function from api service
+    const getApiBaseUrl = () => {
+      if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) {
+        return import.meta.env.VITE_API_URL;
+      }
+
+      if (typeof process !== 'undefined' && process.env?.REACT_APP_API_URL) {
+        return process.env.REACT_APP_API_URL;
+      }
+
+      return "https://dashbar.barareca.co.id/api";
+    };
+
+    const url = `${getApiBaseUrl()}${endpoint}`;
 
     // Check if this is the leave types or holidays endpoint
     const isLeaveTypesEndpoint =
@@ -96,7 +109,20 @@ const httpClient = {
   },
 
   async post<T>(endpoint: string, data: unknown): Promise<T> {
-    const url = `${import.meta.env.VITE_API_URL}${endpoint}`;
+    // Import the getApiBaseUrl function from api service
+    const getApiBaseUrl = () => {
+      if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) {
+        return import.meta.env.VITE_API_URL;
+      }
+
+      if (typeof process !== 'undefined' && process.env?.REACT_APP_API_URL) {
+        return process.env.REACT_APP_API_URL;
+      }
+
+      return "https://dashbar.barareca.co.id/api";
+    };
+
+    const url = `${getApiBaseUrl()}${endpoint}`;
     const token = localStorage.getItem("auth_token");
 
     const headers: Record<string, string> = {

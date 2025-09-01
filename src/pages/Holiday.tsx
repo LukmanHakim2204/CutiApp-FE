@@ -1,8 +1,8 @@
 import { Calendar, Clock, Flag, Heart, Moon, Star, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
-import Navbar from "../component/Navbar";
+import Navbar from "../components/Navbar";
 import type { ExtendedHoliday, Holiday, HolidayGroup } from "../types/type";
-import AuthGuard from "../component/AuthGuard";
+import AuthGuard from "../components/AuthGuard";
 import { apiClient } from "../services/api";
 
 // Define interfaces for type safety

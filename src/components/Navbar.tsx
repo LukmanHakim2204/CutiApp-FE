@@ -1,10 +1,4 @@
-import {
-  FileTextIcon,
-  HomeIcon,
-  PlusIcon,
-  TrendingUp,
-  UserIcon,
-} from "lucide-react";
+import {FileTextIcon,HomeIcon,PlusIcon,TrendingUp,UserIcon,} from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
